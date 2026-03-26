@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sleep Harmony</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #d32f2f; --lime: #a8c83c; --sand: #e8e0d0;
+      --dark: #1a1a1a; --cream: #f5f0e8; --text: #2c2c2c;
+    }
+
+    /* ── video helper ── */
+    .video-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    .video-wrap video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .video-wrap.hero-vid    { background: #b8c890; }
+    .video-wrap.thumb-vid   { background: #a8b880; }
+    .video-wrap.feature-vid { background: #8a9a60; }
+    .video-wrap.footer-vid  { background: #202818; }
+
+    /* ════════════════════════════
+       TEXT ANIMATION SYSTEM
+       スクロールで各テキストが出現
+    ════════════════════════════ */
+
+    /* --- keyframes --- */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes slideLeft {
+      from { opacity: 0; transform: translateX(32px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(-32px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes revealClip {
+      from { clip-path: inset(0 100% 0 0); opacity: 1; }
+      to   { clip-path: inset(0 0% 0 0);   opacity: 1; }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(.88); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    /* 文字が1文字ずつ落ちてくる用 */
+    @keyframes charDrop {
+      from { opacity: 0; transform: translateY(-18px) rotate(-4deg); }
+      to   { opacity: 1; transform: translateY(0) rotate(0deg); }
+    }
+    /* アンダーラインが伸びる */
+    @keyframes lineGrow {
+      from { transform: scaleX(0); transform-origin: left; }
+      to   { transform: scaleX(1); transform-origin: left; }
+    }
+    /* フェードアップ + わずかなぼかし解除 */
+    @keyframes blurUp {
+      from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
+      to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+    }
+
+    /* --- 共通: アニメ前は非表示 --- */
+    .anim {
+      opacity: 0;
+    }
+    /* --- JS で .visible を付与したら再生 --- */
+    .anim.visible {
+      animation-fill-mode: both;
+      animation-duration: .9s;
+      animation-timing-function: cubic-bezier(.22, .61, .36, 1);
+    }
+    /* タイプ別 */
+    .anim-fadeup.visible   { animation-name: fadeUp; }
+    .anim-fadein.visible   { animation-name: fadeIn; }
+    .anim-left.visible     { animation-name: slideLeft; }
+    .anim-right.visible    { animation-name: slideRight; }
+    .anim-clip.visible     { animation-name: revealClip; opacity: 1; }
+    .anim-scale.visible    { animation-name: scaleIn; }
+    .anim-blurup.visible   { animation-name: blurUp; }
+
+    /* ディレイユーティリティ */
+    .d1  { animation-delay: .1s; }
+    .d2  { animation-delay: .22s; }
+    .d3  { animation-delay: .38s; }
+    .d4  { animation-delay: .54s; }
+    .d5  { animation-delay: .70s; }
+    .d6  { animation-delay: .86s; }
+
+    /* アンダーライン装飾（h2直下） */
+    .deco-line {
+      display: block;
+      width: 40px; height: 2px;
+      background: var(--text);
+      margin-top: 12px;
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+    .deco-line.visible { animation: lineGrow .7s .5s cubic-bezier(.22,.61,.36,1) both; }
+
+    /* feature overlay テキスト行ごと */
+    .feature-overlay .line { display: block; }
+
+    /* ════════════════════════════
+       ★ スマホ基本スタイル（変更なし）
+    ════════════════════════════ */
+    body { font-family: 'Noto Serif JP', serif; background: var(--cream); color: var(--text); max-width: 430px; margin: 0 auto; overflow-x: hidden; }
+
+    header { background: var(--red); padding: 12px 16px; }
+    header span { font-family: 'Playfair Display', serif; color: #fff; font-size: 13px; letter-spacing: .05em; }
+    .nav-links { display: none; }
+
+    .hero { width: 100%; aspect-ratio: 4/3; overflow: hidden; position: relative; }
+    .hero .video-wrap { aspect-ratio: 4/3; }
+    .hero-overlay { display: none; }
+
+    .thumb-section { background: var(--lime); padding: 12px; }
+    .thumb-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+    .thumb { aspect-ratio: 1; border-radius: 6px; overflow: hidden; position: relative; }
+    .thumb .video-wrap { border-radius: 6px; }
+
+    .copy-section { background: var(--sand); padding: 28px 20px 20px; }
+    .copy-section h2 { font-size: 20px; font-weight: 400; line-height: 1.6; color: var(--text); margin-bottom: 20px; }
+    .copy-thumbs { display: flex; gap: 10px; }
+    .copy-thumb { width: 68px; height: 68px; border-radius: 6px; overflow: hidden; position: relative; background: #c0b8a8; }
+    .copy-thumb .video-wrap { border-radius: 6px; }
+
+    .feature-section { position: relative; overflow: hidden; }
+    .feature-main { display: grid; grid-template-columns: 3fr 2fr; }
+    .feature-left { aspect-ratio: 3/4; position: relative; overflow: hidden; }
+    .feature-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 16px 16px; background: linear-gradient(transparent, rgba(0,0,0,.62)); z-index: 4; }
+    .feature-overlay p { color: #fff; font-size: 12px; line-height: 1.9; font-weight: 300; }
+    .feature-overlay .author { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+    .avatar { width: 24px; height: 24px; border-radius: 50%; background: #c8b8a0; display: flex; align-items: center; justify-content: center; font-size: 10px; overflow: hidden; }
+    .author-name   { color: rgba(255,255,255,.9); font-size: 10px; }
+    .author-handle { color: rgba(255,255,255,.6); font-size: 9px; }
+    .feature-right { display: flex; flex-direction: column; }
+    .feature-right-top { flex: 1; min-height: 140px; position: relative; overflow: hidden; background: var(--cream); }
+    .feature-right-bottom { background: #c8c0b0; padding: 10px; text-align: center; }
+    .feature-right-bottom span { font-size: 9px; color: var(--dark); letter-spacing: .05em; }
+
+    .big-text { background: var(--sand); padding: 36px 24px 40px; }
+    .big-text h1 { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700; line-height: 1.15; color: var(--dark); margin-bottom: 12px; }
+    .big-text p { font-size: 14px; color: #555; letter-spacing: .04em; }
+
+    footer { background: var(--dark); padding: 32px 24px 40px; }
+    .footer-tagline { font-size: 9px; letter-spacing: .15em; color: rgba(255,255,255,.5); text-transform: uppercase; margin-bottom: 24px; }
+    .footer-visual { width: 100%; aspect-ratio: 16/7; border-radius: 6px; overflow: hidden; position: relative; margin-bottom: 32px; }
+    .footer-visual .video-wrap { border-radius: 6px; }
+    .footer-contact { font-size: 11px; letter-spacing: .12em; color: rgba(255,255,255,.5); text-transform: lowercase; }
+    .footer-logo { display: none; }
+
+    /* ════════════════════════════
+       ★ PC追加スタイル（769px以上）
+    ════════════════════════════ */
+    @media (min-width: 769px) {
+      body { max-width: 100%; }
+      header { padding: 0 48px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+      header span { font-size: 16px; }
+      .nav-links { display: flex; gap: 32px; align-items: center; }
+      .nav-links a { color: rgba(255,255,255,.75); font-size: 11px; letter-spacing: .12em; text-decoration: none; text-transform: uppercase; transition: color .2s; }
+      .nav-links a:hover { color: #fff; }
+      .hero { aspect-ratio: unset; height: calc(100vh - 52px); min-height: 520px; max-height: 900px; }
+      .hero .video-wrap { aspect-ratio: unset; height: 100%; }
+      .hero-overlay { display: flex; position: absolute; inset: 0; z-index: 2; flex-direction: column; justify-content: flex-end; padding: 64px 80px; background: linear-gradient(to top, rgba(20,24,16,.55) 0%, rgba(20,24,16,.1) 45%, transparent 100%); }
+      .hero-overlay h1 { font-family: 'Playfair Display', serif; font-size: clamp(42px, 5vw, 80px); font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 14px; max-width: 640px; }
+      .hero-overlay p { color: rgba(255,255,255,.8); font-size: 15px; letter-spacing: .06em; }
+      .thumb-section { padding: 16px 48px; }
+      .thumb-grid { gap: 12px; max-width: 1400px; margin: 0 auto; }
+      .thumb { aspect-ratio: 16/9; }
+      .copy-section { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding: 72px 80px; max-width: 100%; }
+      .copy-section h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 3vw, 46px); margin-bottom: 0; }
+      .copy-thumbs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .copy-thumb { width: auto; height: auto; aspect-ratio: 1; }
+      .feature-main { min-height: 70vh; }
+      .feature-left { aspect-ratio: unset; }
+      .feature-overlay { padding: 48px 56px; }
+      .feature-overlay p { font-size: clamp(13px, 1.2vw, 17px); margin-bottom: 20px; }
+      .avatar { width: 36px; height: 36px; font-size: 14px; }
+      .author-name { font-size: 13px; }
+      .author-handle { font-size: 11px; }
+      .feature-right-top { min-height: 300px; }
+      .feature-right-bottom { padding: 18px 24px; }
+      .feature-right-bottom span { font-size: 12px; letter-spacing: .1em; }
+      .big-text { padding: 96px 80px; display: flex; align-items: baseline; gap: 48px; flex-wrap: wrap; }
+      .big-text h1 { font-size: clamp(48px, 6vw, 96px); margin-bottom: 0; }
+      .big-text p { font-size: 16px; color: #666; padding-bottom: 6px; }
+      footer { padding: 100px 80px 48px; }
+      .footer-tagline { font-size: 10px; letter-spacing: .2em; margin-bottom: 32px; }
+      .footer-visual { aspect-ratio: 21/6; border-radius: 10px; margin-bottom: 40px; }
+      .footer-visual .video-wrap { border-radius: 10px; }
+      .footer-bottom-row { display: flex; justify-content: space-between; align-items: center; }
+      .footer-logo { display: block; font-family: 'Playfair Display', serif; font-size: 14px; color: rgba(255,255,255,.3); letter-spacing: .06em; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <span>sleep harmony</span>
+    <nav class="nav-links">
+      <a href="#">About</a>
+      <a href="#">Ingredients</a>
+      <a href="#">Reviews</a>
+      <a href="#">Shop</a>
+      <a href="#">Contact</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="video-wrap hero-vid">
+      <video autoplay muted loop playsinline>
+        <source src="sleep (1).mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="hero-overlay">
+      <h1 class="anim anim-fadeup d1">The Night That<br>Restores You</h1>
+      <p  class="anim anim-blurup d3">朝の目覚めが変わるサプリ。</p>
+    </div>
+  </div>
+
+  <!-- THUMB GRID -->
+  <div class="thumb-section">
+    <div class="thumb-grid">
+      <div class="thumb anim anim-scale d1">
+        <div class="video-wrap thumb-vid">
+          <video autoplay muted loop playsinline><source src="sleep (2).mp4" type="video/mp4"></video>
+        </div>
+      </div>
+      <div class="thumb anim anim-scale d2">
+        <div class="video-wrap thumb-vid">
+          <video autoplay muted loop playsinline><source src="sleep (3).mp4" type="video/mp4"></video>
+        </div>
+      </div>
+      <div class="thumb anim anim-scale d3">
+        <div class="video-wrap thumb-vid">
+          <video autoplay muted loop playsinline><source src="sleep (4).mp4" type="video/mp4"></video>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COPY -->
+  <div class="copy-section">
+    <div>
+      <h2 class="anim anim-right">あなたの夜を、静かな<br>癒しに。</h2>
+      <span class="deco-line anim"></span>
+    </div>
+    <div class="copy-thumbs">
+      <div class="copy-thumb anim anim-fadeup d3">
+        <div class="video-wrap">
+          <video autoplay muted loop playsinline><source src="sleep (5).mp4" type="video/mp4"></video>
+        </div>
+      </div>
+      <div class="copy-thumb anim anim-fadeup d4">
+        <div class="video-wrap">
+          <video autoplay muted loop playsinline><source src="sleep (6).mp4" type="video/mp4"></video>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURE -->
+  <div class="feature-section">
+    <div class="feature-main">
+      <div class="feature-left">
+        <div class="video-wrap feature-vid" style="position:absolute;inset:0;height:100%">
+          <video autoplay muted loop playsinline><source src="sleep (7).mp4" type="video/mp4"></video>
+        </div>
+        <div class="feature-overlay">
+          <p>
+            <span class="line anim anim-fadeup d1">眠れない夜に、やさしく答える。</span>
+            <span class="line anim anim-fadeup d2">ただ眠るだけじゃない。整う眠りへ。</span>
+            <span class="line anim anim-fadeup d3">今日の疲れを、明日に残さない。</span>
+          </p>
+          <div class="author anim anim-fadein d5">
+            <div class="avatar">🐨</div>
+            <div>
+              <div class="author-name">Sora</div>
+              <div class="author-handle">@konishilyomai</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="feature-right">
+        <div class="feature-right-top">
+          <div class="video-wrap" style="position:absolute;inset:0">
+            <video autoplay muted loop playsinline><source src="sleep (3).mp4" type="video/mp4"></video>
+          </div>
+        </div>
+        <div class="feature-right-bottom">
+          <span class="anim anim-fadein d2">やさしくはぐくむ。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BIG TEXT -->
+  <div class="big-text">
+    <h1 class="anim anim-clip">The Night That<br>Restores You</h1>
+    <p  class="anim anim-blurup d4">朝の目覚めが変わるサプリ。</p>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-tagline anim anim-fadein d1">"Better Sleep, Better Life."</div>
+  
+    </div>
+    <div class="footer-bottom-row">
+      <div class="footer-contact anim anim-fadeup d3">contact</div>
+      <div class="footer-logo    anim anim-fadeup d4">sleep harmony</div>
+    </div>
+  </footer>
+
+  <!-- ════════════════════════════
+       Intersection Observer
+       スクロールで .visible 付与
+  ════════════════════════════ -->
+  <script>
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          io.unobserve(e.target); // 一度だけ発火
+        }
+      });
+    }, { threshold: 0.15 });
+
+    // ページ内の全 .anim 要素を監視
+    document.querySelectorAll('.anim').forEach(el => io.observe(el));
+
+    // ヒーローオーバーレイはページ読み込み直後に発火
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.hero-overlay .anim').forEach(el => {
+        setTimeout(() => el.classList.add('visible'),
+          (parseFloat(getComputedStyle(el).animationDelay) || 0) * 1000 + 200);
+      });
+    });
+  </script>
+
+</body>
+</html>
