@@ -128,9 +128,11 @@ img, video{ display:block; max-width:100%; }
 
 /* ── NAV ── */
 nav{
-  position:sticky;
-  top:0;
-  z-index:500;
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  z-index:99999;
   height:58px;
   display:flex;
   justify-content:space-between;
@@ -138,7 +140,8 @@ nav{
   padding:0 22px;
   background:rgba(235,228,217,.82);
   backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--line);
+  border-top:1px solid var(--line);
+  border-bottom:none;
 }
 .nav-logo{
   font-family:'Bebas Neue',sans-serif;
@@ -349,8 +352,10 @@ nav{
   line-height:.9; letter-spacing:.03em;
 }
 .section-copy{
-  font-size:13px; color:var(--soft);
-  line-height:1.8; max-width:340px;
+  font-size:16px;
+  color:var(--soft);
+  line-height:2.0;
+  max-width:380px;
 }
 
 /* ── PHOTO GRID ── */
@@ -415,7 +420,7 @@ nav{
 }
 .services-sub{
   max-width:460px;
-  font-size:13px; color:var(--soft);
+  font-size:22px; color:var(--soft);
   line-height:1.8; padding-top:14px;
 }
 
@@ -702,41 +707,6 @@ footer{ background:var(--ink); padding:30px 22px 0; }
   line-height:.82; letter-spacing:.03em;
   color:rgba(245,241,232,.05);
 }
-.hero-slider{
-  position:absolute;
-  inset:0;
-  z-index:0;
-  overflow:hidden;
-}
-
-.hero-slider .slide{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  opacity:0;
-  transition:opacity 1.5s ease;
-  filter:saturate(.95) contrast(1.02);
-}
-
-.hero-slider .slide.active{
-  opacity:1;
-}
-
-.hero-overlay,
-.hero-grain,
-.hero-float-card,
-.hero-inner,
-.scroll-cue{
-  position:relative;
-}
-
-.hero-overlay{ z-index:1; }
-.hero-grain{ z-index:2; }
-.hero-float-card{ z-index:4; }
-.hero-inner{ z-index:3; }
-.scroll-cue{ z-index:4; }
 
 
 @keyframes tickRun{
@@ -796,6 +766,14 @@ footer{ background:var(--ink); padding:30px 22px 0; }
   .hero-meta{ grid-template-columns:1fr; padding:14px 16px; }
   .section-head{ padding:40px 16px 20px; }
   .services-banner{ padding:44px 16px 24px; }
+  .services-big {
+    font-size:clamp(32px,10vw,48px);
+    line-height:1.1;
+    letter-spacing:0.01em;
+    margin-bottom:18px;
+    text-align:center;
+    font-weight:700;
+  }
   .card-row{ flex-direction:column; }
   .card-row-media{ width:100%; height:180px !important; }
   .card-row-meta{ padding:0 20px 18px; justify-content:space-between; }
@@ -814,6 +792,80 @@ footer{ background:var(--ink); padding:30px 22px 0; }
 @media(prefers-reduced-motion:reduce){
   *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
 }
+/* --- LIFETIME & SUBSCRIPTION SECTION (AWARD STYLE) --- */
+.lifetime-section {
+  position:relative;
+  min-height:60vh;
+  overflow:hidden;
+  background:var(--bone);
+  border-bottom:1px solid var(--line);
+}
+.lifetime-video {
+  position:absolute;
+  top:0; left:0; width:100%; height:100%;
+  z-index:0;
+}
+.lifetime-video video {
+  width:100%; height:100%; object-fit:cover;
+  opacity:0.55;
+}
+.lifetime-overlay {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  background:rgba(255,255,255,0.7);
+  z-index:1;
+}
+.lifetime-inner {
+  position:relative; z-index:2;
+  padding:60px 22px 40px;
+  display:flex; flex-wrap:wrap; align-items:center; gap:40px;
+}
+.lifetime-info {
+  flex:1 1 320px;
+  min-width:280px;
+}
+.lifetime-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(32px,6vw,54px);
+  margin-bottom:18px;
+  color:var(--ink);
+}
+.lifetime-desc {
+  font-size:15px; color:var(--ink); line-height:1.8; margin-bottom:8px;
+}
+.lifetime-list {
+  font-size:13px; color:var(--ink); margin-bottom:10px;
+  padding-left:18px;
+}
+.lifetime-label {
+  display:inline-block; background:var(--gold); color:var(--bone); font-size:11px; border-radius:8px; padding:2px 10px; margin-right:8px;
+}
+.lifetime-price {
+  font-size:22px; font-weight:bold; color:var(--moss); margin-bottom:8px;
+}
+.lifetime-note {
+  font-size:12px; color:var(--soft);
+}
+@media (max-width: 720px) {
+  .lifetime-inner {
+    flex-direction: column;
+    padding: 40px 0 24px 0;
+    gap: 24px;
+  }
+  .lifetime-info {
+    min-width: 0;
+    width: 100vw;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  .lifetime-info video {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -830,7 +882,7 @@ footer{ background:var(--ink); padding:30px 22px 0; }
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">Sleep Harmony</div>
+
   <div class="nav-r">
     <a href="#ingredients">成分</a>
     <a href="#effects">効果</a>
@@ -841,22 +893,12 @@ footer{ background:var(--ink); padding:30px 22px 0; }
 
 <!-- ① HERO -->
 <section class="hero snap">
-
-  <div class="hero-slider">
-    <video autoplay muted loop playsinline class="slide active">
-      <source src="video (6)_4.mp4" type="video/mp4">
-    </video>
-
-    <video autoplay muted loop playsinline class="slide">
-      <source src="video (11)_3.mp4" type="video/mp4">
-    </video>
-
-    <video autoplay muted loop playsinline class="slide">
-      <source src="sleep (4).mp4" type="video/mp4">
-    </video>
-  </div>
-
-  <div class="hero-overlay"></div>
+  <video autoplay muted loop playsinline class="parallax-media" data-speed="0.18">
+    <source src="video (6)_4.mp4" type="video/mp4">
+  </video>
+  <!-- HEROスライダー用スクリプト読込 -->
+  <script src="hero-slider.js"></script>
+  <div class="hero-overlay"></di>
   <div class="hero-grain"></div>
 
   <div class="hero-float-card reveal d2">
@@ -868,7 +910,7 @@ footer{ background:var(--ink); padding:30px 22px 0; }
     <div class="hero-topline reveal">SH-001 / 2026 / JAPAN</div>
     <div class="hero-main">
       <div>
-        <div class="hero-title reveal">深く眠る。<br><em>静かに整う。</em></div>
+        <div class="hero-title reveal">人生の1/3、ちゃんと投資してる？<br><em></em></div>
       </div>
       <div class="hero-desc reveal d1">
         <p>夜の緊張をほどき、入眠から深睡眠、そして朝の目覚めまで。Sleep Harmony は、明日の自分を整えるためのナイトルーティンです。</p>
@@ -879,13 +921,12 @@ footer{ background:var(--ink); padding:30px 22px 0; }
       </div>
     </div>
   </div>
-
   <div class="scroll-cue"><span>Scroll</span><span class="line"></span></div>
 </section>
 
 <div class="hero-meta">
-  <div class="hero-meta-title">Sleep Harmony — ナイトカプセル 30日分</div>
-  <div class="hero-meta-sub">自然由来 / 添加物フリー / 習慣性なし / GMP認定工場</div>
+  <div class="hero-meta-title">Sleep Harmony — ナイトカプセル </div>
+
 </div>
 
 <!-- ② INGREDIENTS -->
@@ -893,9 +934,17 @@ footer{ background:var(--ink); padding:30px 22px 0; }
   <div class="section-head">
     <div>
       <div class="section-kicker reveal">Ingredients</div>
-      <h2 class="section-title reveal d1">眠りをつくる、<br>静かな成分設計。</h2>
+      <h2 class="section-title reveal d1">眠りをつくる、<br>静かなサプリ</h2>
     </div>
-    <p class="section-copy reveal d2">眠れない夜に必要なのは、刺激ではなくバランス。緊張をゆるめ、体内時計を整え、深い休息へ導くための成分を、必要な分だけ丁寧に配合しました。</p>
+    <p class="section-copy reveal d2">Sleep Harmony
+自然由来成分で眠りを整えるナイトサプリ。
+
+✔ 入眠サポート
+✔ 深い睡眠をサポート
+✔ 朝スッキリ目覚める
+
+忙しい現代人のための、
+新しい睡眠習慣。</p>
   </div>
   <div class="photo-grid">
     <div class="photo-cell reveal">
@@ -937,10 +986,53 @@ footer{ background:var(--ink); padding:30px 22px 0; }
   </div>
 </section>
 
+<!-- ③-2 DESIGN AWARD LIFETIME & SUBSCRIPTION SECTION -->
+<section class="lifetime-section snap" id="lifetime">
+  <div class="lifetime-video">
+    <video autoplay muted loop playsinline>
+      <source src="lifetime-sub.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="lifetime-overlay"></div>
+  <div class="lifetime-inner">
+    <div class="lifetime-info">
+      <div class="lifetime-title" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,7vw,68px);color:var(--gold);letter-spacing:.04em;line-height:1;"><br>LIFETIME / SUBSCRIPTION</div>
+      <div class="lifetime-desc" style="margin-top:18px;">
+        <span class="lifetime-label">買い切り（Lifetime）</span>
+        <span class="lifetime-price">3980円</span>
+        <span class="lifetime-note">（セール時は1480円になることもあります）</span>
+      </div>
+      <ul class="lifetime-list">
+        <li>一度の購入で永久利用可能</li>
+        <li>セール時は大幅割引あり</li>
+      </ul>
+      <div class="lifetime-desc" style="margin-top:18px;">
+        <span class="lifetime-label">月額/年額</span>
+        <span class="lifetime-note">ストアによって異なりますが、1980円サブスクリプション形式での提供が一般的です。</span>
+      </div>
+      <ul class="lifetime-list">
+        <li>お試し期間あり</li>
+        <li>いつでも解約可能</li>
+      </ul>
+      <div class="lifetime-note" style="margin-top:10px;">※詳細は各ストア・販売ページをご確認ください。</div>
+    </div>
+    <div class="lifetime-info" style="display:flex;justify-content:center;align-items:center;">
+      <video autoplay muted loop playsinline style="width:100%;max-width:340px;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.18);border:4px solid var(--gold);">
+        <source src="video (28).mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</section>
+
 <!-- ③ EFFECTS BANNER -->
 <section class="services-banner snap" id="effects">
-  <div class="services-big reveal">Effects</div>
-  <p class="services-sub reveal d1">眠りの入口だけで終わらない。Sleep Harmony は、夜の静けさから翌朝の軽やかさまで、睡眠体験そのものをデザインします。</p>
+
+<!-- スライダー用スクリプト読込 -->
+<script src="slider.js"></script>
+  <div class="services-big reveal">こんな時ないですか？</div>
+  <p class="services-sub reveal d1">寝付けない、寝床にはいってもスマホばっかり見てしまう。
+  そんな時SleepHarmonyはあなたの夜を快適にするようにデザインします。
+  </p>
 </section>
 
 <!-- ④ CARD LIST -->
@@ -1021,7 +1113,7 @@ footer{ background:var(--ink); padding:30px 22px 0; }
       </div>
     </div>
     <div class="more-card">
-      <div class="more-card-media"><video autoplay muted loop playsinline><source src="sleep (4).mp4" type="video/mp4"></video></div>
+      <div class="more-card-media"><video autoplay muted loop playsinline><source src="video (30).mp4" type="video/mp4"></video></div>
       <div class="more-card-body">
         <p class="more-card-desc">「翌朝の頭の重さが変わりました。眠る質ってこういうことかと実感。」</p>
         <div class="more-card-footer"><span class="more-card-name">Kenji T. · 36歳</span><span class="more-card-likes">♡ 77</span></div>
@@ -1113,6 +1205,55 @@ window.addEventListener('load', () => {
   setTimeout(() => loader.classList.add('hide'), 1100);
 });
 
+// --- レビュー横スライダー：指・マウスでスライド対応 ---
+{
+  const rail = document.querySelector('.more-rail');
+  if (rail) {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    // マウス
+    rail.addEventListener('mousedown', (e) => {
+      isDown = true;
+      rail.classList.add('dragging');
+      startX = e.pageX - rail.offsetLeft;
+      scrollLeft = rail.scrollLeft;
+    });
+    rail.addEventListener('mouseleave', () => {
+      isDown = false;
+      rail.classList.remove('dragging');
+    });
+    rail.addEventListener('mouseup', () => {
+      isDown = false;
+      rail.classList.remove('dragging');
+    });
+    rail.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - rail.offsetLeft;
+      const walk = (x - startX) * 1.2; // スクロール速度調整
+      rail.scrollLeft = scrollLeft - walk;
+    });
+
+    // タッチ
+    rail.addEventListener('touchstart', (e) => {
+      isDown = true;
+      startX = e.touches[0].pageX - rail.offsetLeft;
+      scrollLeft = rail.scrollLeft;
+    });
+    rail.addEventListener('touchend', () => {
+      isDown = false;
+    });
+    rail.addEventListener('touchmove', (e) => {
+      if (!isDown) return;
+      const x = e.touches[0].pageX - rail.offsetLeft;
+      const walk = (x - startX) * 1.2;
+      rail.scrollLeft = scrollLeft - walk;
+    });
+  }
+}
+
 /* CURSOR */
 const cursor = document.getElementById('cursor');
 window.addEventListener('mousemove', e => {
@@ -1168,14 +1309,6 @@ snapSections.forEach(s => snapIO.observe(s));
 window.addEventListener('scroll', updateParallax, { passive: true });
 window.addEventListener('resize', updateParallax);
 updateParallax();
-const heroSlides = document.querySelectorAll('.hero-slider .slide');
-let heroCurrent = 0;
-
-setInterval(() => {
-  heroSlides[heroCurrent].classList.remove('active');
-  heroCurrent = (heroCurrent + 1) % heroSlides.length;
-  heroSlides[heroCurrent].classList.add('active');
-}, 5000);
 </script>
 </body>
 </html>
