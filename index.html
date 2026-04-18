@@ -1,350 +1,1314 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sleep Harmony</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Serif+JP:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --red: #d32f2f; --lime: #a8c83c; --sand: #e8e0d0;
-      --dark: #1a1a1a; --cream: #f5f0e8; --text: #2c2c2c;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sleep Harmony | Design Award Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after{
+  margin:0; padding:0; box-sizing:border-box;
+}
 
-    /* ── video helper ── */
-    .video-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
-    .video-wrap video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-    .video-wrap.hero-vid    { background: #b8c890; }
-    .video-wrap.thumb-vid   { background: #a8b880; }
-    .video-wrap.feature-vid { background: #8a9a60; }
-    .video-wrap.footer-vid  { background: #202818; }
+:root{
+  --ink:#0e0e0e;
+  --bone:#f5f1e8;
+  --cream:#ebe4d9;
+  --moss:#1c3528;
+  --sage: #f5f1e8;
+  --gold:#c9a157;
+  --line:rgba(14,14,14,0.09);
+  --soft:rgba(14,14,14,0.55);
+}
 
-    /* ════════════════════════════
-       TEXT ANIMATION SYSTEM
-       スクロールで各テキストが出現
-    ════════════════════════════ */
+html{ scroll-behavior:smooth; }
 
-    /* --- keyframes --- */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(28px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-    @keyframes slideLeft {
-      from { opacity: 0; transform: translateX(32px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes slideRight {
-      from { opacity: 0; transform: translateX(-32px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes revealClip {
-      from { clip-path: inset(0 100% 0 0); opacity: 1; }
-      to   { clip-path: inset(0 0% 0 0);   opacity: 1; }
-    }
-    @keyframes scaleIn {
-      from { opacity: 0; transform: scale(.88); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-    /* 文字が1文字ずつ落ちてくる用 */
-    @keyframes charDrop {
-      from { opacity: 0; transform: translateY(-18px) rotate(-4deg); }
-      to   { opacity: 1; transform: translateY(0) rotate(0deg); }
-    }
-    /* アンダーラインが伸びる */
-    @keyframes lineGrow {
-      from { transform: scaleX(0); transform-origin: left; }
-      to   { transform: scaleX(1); transform-origin: left; }
-    }
-    /* フェードアップ + わずかなぼかし解除 */
-    @keyframes blurUp {
-      from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
-      to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
-    }
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  overflow-x:hidden;
+  scroll-snap-type:y mandatory;
+  overflow-y:scroll;
+  height:100svh;
+  cursor:none;
+}
 
-    /* --- 共通: アニメ前は非表示 --- */
-    .anim {
-      opacity: 0;
-    }
-    /* --- JS で .visible を付与したら再生 --- */
-    .anim.visible {
-      animation-fill-mode: both;
-      animation-duration: .9s;
-      animation-timing-function: cubic-bezier(.22, .61, .36, 1);
-    }
-    /* タイプ別 */
-    .anim-fadeup.visible   { animation-name: fadeUp; }
-    .anim-fadein.visible   { animation-name: fadeIn; }
-    .anim-left.visible     { animation-name: slideLeft; }
-    .anim-right.visible    { animation-name: slideRight; }
-    .anim-clip.visible     { animation-name: revealClip; opacity: 1; }
-    .anim-scale.visible    { animation-name: scaleIn; }
-    .anim-blurup.visible   { animation-name: blurUp; }
+a, button{ cursor:none; }
+img, video{ display:block; max-width:100%; }
 
-    /* ディレイユーティリティ */
-    .d1  { animation-delay: .1s; }
-    .d2  { animation-delay: .22s; }
-    .d3  { animation-delay: .38s; }
-    .d4  { animation-delay: .54s; }
-    .d5  { animation-delay: .70s; }
-    .d6  { animation-delay: .86s; }
+.snap{
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+}
 
-    /* アンダーライン装飾（h2直下） */
-    .deco-line {
-      display: block;
-      width: 40px; height: 2px;
-      background: var(--text);
-      margin-top: 12px;
-      transform: scaleX(0);
-      transform-origin: left;
-    }
-    .deco-line.visible { animation: lineGrow .7s .5s cubic-bezier(.22,.61,.36,1) both; }
+.parallax-media{
+  will-change:transform;
+  transform-origin:center center;
+}
 
-    /* feature overlay テキスト行ごと */
-    .feature-overlay .line { display: block; }
+/* ── LOADER ── */
+.loader{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  background:linear-gradient(135deg,#111 0%,#1b3526 100%);
+  color:var(--bone);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:14px;
+  transition:opacity .9s ease, visibility .9s ease;
+}
+.loader.hide{
+  opacity:0; visibility:hidden; pointer-events:none;
+}
+.loader-kicker{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:rgba(245,241,232,.6);
+}
+.loader-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(48px,10vw,120px);
+  letter-spacing:.06em;
+  line-height:.9;
+}
+.loader-bar{
+  width:min(280px,70vw);
+  height:1px;
+  background:rgba(255,255,255,.15);
+  overflow:hidden;
+  position:relative;
+}
+.loader-bar::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--gold);
+  transform:translateX(-100%);
+  animation:loadBar 1.8s ease forwards;
+}
+@keyframes loadBar{ to{ transform:translateX(0); } }
 
-    /* ════════════════════════════
-       ★ スマホ基本スタイル（変更なし）
-    ════════════════════════════ */
-    body { font-family: 'Noto Serif JP', serif; background: var(--cream); color: var(--text); max-width: 430px; margin: 0 auto; overflow-x: hidden; }
+/* ── CURSOR ── */
+.cursor{
+  width:18px; height:18px;
+  border:1px solid rgba(14,14,14,.8);
+  border-radius:50%;
+  position:fixed;
+  top:0; left:0;
+  pointer-events:none;
+  transform:translate(-50%,-50%);
+  z-index:99999;
+  transition:width .18s ease, height .18s ease, background .18s ease, border-color .18s ease;
+  mix-blend-mode:difference;
+  background:rgba(255,255,255,.08);
+}
+.cursor.active{
+  width:42px; height:42px;
+  background:rgba(255,255,255,.12);
+  border-color:rgba(255,255,255,.85);
+}
 
-    header { background: var(--red); padding: 12px 16px; }
-    header span { font-family: 'Playfair Display', serif; color: #fff; font-size: 13px; letter-spacing: .05em; }
-    .nav-links { display: none; }
+/* ── TOP PROGRESS ── */
+.top-progress{
+  position:fixed;
+  top:0; left:0;
+  height:2px;
+  width:0%;
+  background:var(--gold);
+  z-index:99998;
+  transition:width .35s ease;
+  pointer-events:none;
+}
 
-    .hero { width: 100%; aspect-ratio: 4/3; overflow: hidden; position: relative; }
-    .hero .video-wrap { aspect-ratio: 4/3; }
-    .hero-overlay { display: none; }
+/* ── NAV ── */
+nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  z-index:99999;
+  height:58px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:0 22px;
+  background:rgba(235,228,217,.82);
+  backdrop-filter:blur(14px);
+  border-top:1px solid var(--line);
+  border-bottom:none;
+}
+.nav-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;
+  letter-spacing:.12em;
+}
+.nav-r{
+  display:flex;
+  align-items:center;
+  gap:20px;
+}
+.nav-r a{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:rgba(14,14,14,.42);
+  text-decoration:none;
+  transition:color .25s;
+}
+.nav-r a:hover{ color:var(--ink); }
+.nav-buy{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  background:var(--ink);
+  color:var(--bone);
+  border:none;
+  padding:10px 18px;
+  border-radius:999px;
+  transition:transform .25s, background .25s;
+}
+.nav-buy:hover{ background:var(--moss); transform:translateY(-1px); }
 
-    .thumb-section { background: var(--lime); padding: 12px; }
-    .thumb-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
-    .thumb { aspect-ratio: 1; border-radius: 6px; overflow: hidden; position: relative; }
-    .thumb .video-wrap { border-radius: 6px; }
+/* ── HERO ── */
+.hero{
+  position:relative;
+  width:100%;
+  min-height:100svh;
+  overflow:hidden;
+  background:var(--ink);
+}
+.hero video{
+  position:absolute;
+  inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  opacity:.9;
+  filter:saturate(.95) contrast(1.02);
+  animation:heroZoom 18s ease-in-out infinite alternate;
+}
+@keyframes heroZoom{
+  0%{ transform:scale(1.02); }
+  100%{ transform:scale(1.14); }
+}
+.hero-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(to bottom, rgba(0,0,0,.12) 0%, rgba(0,0,0,.06) 30%, rgba(14,14,14,.72) 100%);
+  z-index:1;
+}
+.hero-grain{
+  position:absolute;
+  inset:0; z-index:2;
+  opacity:.08;
+  mix-blend-mode:soft-light;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,.4) 0 1px, transparent 1px),
+    radial-gradient(circle at 80% 50%, rgba(255,255,255,.3) 0 1px, transparent 1px),
+    radial-gradient(circle at 40% 80%, rgba(255,255,255,.25) 0 1px, transparent 1px);
+  background-size:120px 120px, 160px 160px, 180px 180px;
+}
+.hero-float-card{
+  position:absolute;
+  right:22px; top:90px;
+  z-index:4;
+  width:180px;
+  padding:14px;
+  background:rgba(245,241,232,.08);
+  backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:20px;
+  color:var(--bone);
+  box-shadow:0 12px 30px rgba(0,0,0,.14);
+}
+.hero-float-card small{
+  display:block;
+  font-family:'DM Mono',monospace;
+  font-size:9px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:rgba(245,241,232,.6);
+  margin-bottom:7px;
+}
+.hero-float-card strong{
+  display:block;
+  font-size:13px;
+  line-height:1.6;
+  font-weight:500;
+}
+.hero-inner{
+  position:relative;
+  z-index:3;
+  min-height:calc(100svh - 58px);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:34px 24px 30px;
+}
+.hero-topline{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:rgba(245,241,232,.7);
+  margin-bottom:12px;
+}
+.hero-main{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 280px;
+  gap:28px;
+  align-items:end;
+}
+.hero-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(52px,11vw,138px);
+  line-height:.88;
+  letter-spacing:.03em;
+  color:var(--bone);
+  text-shadow:0 10px 30px rgba(0,0,0,.18);
+}
+.hero-title em{ font-style:normal; color:var(--gold); }
+.hero-desc{ justify-self:end; max-width:280px; }
+.hero-desc p{
+  font-size:13px;
+  color:rgba(245,241,232,.72);
+  line-height:1.8;
+  margin-bottom:14px;
+}
+.hero-links{
+  display:flex; gap:14px; flex-wrap:wrap; justify-content:flex-end;
+}
+.hero-link{
+  font-family:'DM Mono',monospace;
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--bone);
+  text-decoration:none;
+  border-bottom:1px solid rgba(245,241,232,.32);
+  padding-bottom:3px;
+}
+.scroll-cue{
+  position:absolute;
+  left:24px; bottom:18px; z-index:4;
+  display:flex; align-items:center; gap:10px;
+  color:rgba(245,241,232,.6);
+  font-family:'DM Mono',monospace;
+  font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+}
+.scroll-cue .line{
+  width:38px; height:1px;
+  background:rgba(245,241,232,.35);
+  position:relative; overflow:hidden;
+}
+.scroll-cue .line::after{
+  content:"";
+  position:absolute; inset:0;
+  background:var(--gold);
+  animation:cueMove 1.8s ease-in-out infinite;
+}
+@keyframes cueMove{
+  0%{ transform:translateX(-100%); }
+  50%{ transform:translateX(0%); }
+  100%{ transform:translateX(100%); }
+}
 
-    .copy-section { background: var(--sand); padding: 28px 20px 20px; }
-    .copy-section h2 { font-size: 20px; font-weight: 400; line-height: 1.6; color: var(--text); margin-bottom: 20px; }
-    .copy-thumbs { display: flex; gap: 10px; }
-    .copy-thumb { width: 68px; height: 68px; border-radius: 6px; overflow: hidden; position: relative; background: #c0b8a8; }
-    .copy-thumb .video-wrap { border-radius: 6px; }
+/* ── HERO META ── */
+.hero-meta{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:16px;
+  padding:16px 22px;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.2);
+}
+.hero-meta-title{ font-size:14px; font-weight:500; }
+.hero-meta-sub{ font-size:11px; color:rgba(14,14,14,.45); align-self:center; }
 
-    .feature-section { position: relative; overflow: hidden; }
-    .feature-main { display: grid; grid-template-columns: 3fr 2fr; }
-    .feature-left { aspect-ratio: 3/4; position: relative; overflow: hidden; }
-    .feature-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px 16px 16px; background: linear-gradient(transparent, rgba(0,0,0,.62)); z-index: 4; }
-    .feature-overlay p { color: #fff; font-size: 12px; line-height: 1.9; font-weight: 300; }
-    .feature-overlay .author { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
-    .avatar { width: 24px; height: 24px; border-radius: 50%; background: #c8b8a0; display: flex; align-items: center; justify-content: center; font-size: 10px; overflow: hidden; }
-    .author-name   { color: rgba(255,255,255,.9); font-size: 10px; }
-    .author-handle { color: rgba(255,255,255,.6); font-size: 9px; }
-    .feature-right { display: flex; flex-direction: column; }
-    .feature-right-top { flex: 1; min-height: 140px; position: relative; overflow: hidden; background: var(--cream); }
-    .feature-right-bottom { background: #c8c0b0; padding: 10px; text-align: center; }
-    .feature-right-bottom span { font-size: 9px; color: var(--dark); letter-spacing: .05em; }
+/* ── SECTION HEAD ── */
+.section-head{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 340px;
+  gap:30px;
+  align-items:end;
+  padding:48px 22px 22px;
+  border-bottom:1px solid var(--line);
+}
+.section-kicker{
+  font-family:'DM Mono',monospace;
+  font-size:10px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--sage); margin-bottom:8px;
+}
+.section-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(48px,10vw,108px);
+  line-height:.9; letter-spacing:.03em;
+}
+.section-copy{
+  font-size:16px;
+  color:var(--soft);
+  line-height:2.0;
+  max-width:380px;
+}
 
-    .big-text { background: var(--sand); padding: 36px 24px 40px; }
-    .big-text h1 { font-family: 'Playfair Display', serif; font-size: 38px; font-weight: 700; line-height: 1.15; color: var(--dark); margin-bottom: 12px; }
-    .big-text p { font-size: 14px; color: #555; letter-spacing: .04em; }
+/* ── PHOTO GRID ── */
+.photo-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:var(--line);
+  border-bottom:1px solid var(--line);
+}
+.photo-cell{
+  background:var(--cream);
+  overflow:hidden;
+  transition:background .25s;
+}
+.photo-cell:hover{ background:#f7f3eb; }
+.photo-cell-media{
+  position:relative;
+  width:100%;
+  aspect-ratio:3/4;
+  overflow:hidden;
+  background:var(--ink);
+}
+.photo-cell-media::after{
+  content:"";
+  position:absolute; inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.22),transparent 55%);
+  pointer-events:none;
+}
+.photo-cell-media video{
+  width:100%; height:100%;
+  object-fit:cover;
+  transition:transform .8s ease;
+}
+.photo-cell:hover .photo-cell-media video{ transform:scale(1.08); }
+.photo-cell-info{ padding:14px 14px 18px; }
+.photo-cell-cat{
+  font-family:'DM Mono',monospace;
+  font-size:9px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--sage); margin-bottom:5px;
+}
+.photo-cell-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(20px,3vw,28px);
+  letter-spacing:.04em; line-height:1; margin-bottom:6px;
+}
+.photo-cell-desc{
+  font-size:11px; color:rgba(14,14,14,.55); line-height:1.7;
+}
 
-    footer { background: var(--dark); padding: 32px 24px 40px; }
-    .footer-tagline { font-size: 9px; letter-spacing: .15em; color: rgba(255,255,255,.5); text-transform: uppercase; margin-bottom: 24px; }
-    .footer-visual { width: 100%; aspect-ratio: 16/7; border-radius: 6px; overflow: hidden; position: relative; margin-bottom: 32px; }
-    .footer-visual .video-wrap { border-radius: 6px; }
-    .footer-contact { font-size: 11px; letter-spacing: .12em; color: rgba(255,255,255,.5); text-transform: lowercase; }
-    .footer-logo { display: none; }
+/* ── SERVICES BANNER ── */
+.services-banner{
+  padding:56px 22px 28px;
+  overflow:hidden;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(255,255,255,.16),transparent);
+}
+.services-big{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(90px,24vw,220px);
+  line-height:.82; letter-spacing:-.02em;
+}
+.services-sub{
+  max-width:460px;
+  font-size:22px; color:var(--soft);
+  line-height:1.8; padding-top:14px;
+}
 
-    /* ════════════════════════════
-       ★ PC追加スタイル（769px以上）
-    ════════════════════════════ */
-    @media (min-width: 769px) {
-      body { max-width: 100%; }
-      header { padding: 0 48px; height: 52px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-      header span { font-size: 16px; }
-      .nav-links { display: flex; gap: 32px; align-items: center; }
-      .nav-links a { color: rgba(255,255,255,.75); font-size: 11px; letter-spacing: .12em; text-decoration: none; text-transform: uppercase; transition: color .2s; }
-      .nav-links a:hover { color: #fff; }
-      .hero { aspect-ratio: unset; height: calc(100vh - 52px); min-height: 520px; max-height: 900px; }
-      .hero .video-wrap { aspect-ratio: unset; height: 100%; }
-      .hero-overlay { display: flex; position: absolute; inset: 0; z-index: 2; flex-direction: column; justify-content: flex-end; padding: 64px 80px; background: linear-gradient(to top, rgba(20,24,16,.55) 0%, rgba(20,24,16,.1) 45%, transparent 100%); }
-      .hero-overlay h1 { font-family: 'Playfair Display', serif; font-size: clamp(42px, 5vw, 80px); font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 14px; max-width: 640px; }
-      .hero-overlay p { color: rgba(255,255,255,.8); font-size: 15px; letter-spacing: .06em; }
-      .thumb-section { padding: 16px 48px; }
-      .thumb-grid { gap: 12px; max-width: 1400px; margin: 0 auto; }
-      .thumb { aspect-ratio: 16/9; }
-      .copy-section { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding: 72px 80px; max-width: 100%; }
-      .copy-section h2 { font-family: 'Playfair Display', serif; font-size: clamp(28px, 3vw, 46px); margin-bottom: 0; }
-      .copy-thumbs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-      .copy-thumb { width: auto; height: auto; aspect-ratio: 1; }
-      .feature-main { min-height: 70vh; }
-      .feature-left { aspect-ratio: unset; }
-      .feature-overlay { padding: 48px 56px; }
-      .feature-overlay p { font-size: clamp(13px, 1.2vw, 17px); margin-bottom: 20px; }
-      .avatar { width: 36px; height: 36px; font-size: 14px; }
-      .author-name { font-size: 13px; }
-      .author-handle { font-size: 11px; }
-      .feature-right-top { min-height: 300px; }
-      .feature-right-bottom { padding: 18px 24px; }
-      .feature-right-bottom span { font-size: 12px; letter-spacing: .1em; }
-      .big-text { padding: 96px 80px; display: flex; align-items: baseline; gap: 48px; flex-wrap: wrap; }
-      .big-text h1 { font-size: clamp(48px, 6vw, 96px); margin-bottom: 0; }
-      .big-text p { font-size: 16px; color: #666; padding-bottom: 6px; }
-      footer { padding: 100px 80px 48px; }
-      .footer-tagline { font-size: 10px; letter-spacing: .2em; margin-bottom: 32px; }
-      .footer-visual { aspect-ratio: 21/6; border-radius: 10px; margin-bottom: 40px; }
-      .footer-visual .video-wrap { border-radius: 10px; }
-      .footer-bottom-row { display: flex; justify-content: space-between; align-items: center; }
-      .footer-logo { display: block; font-family: 'Playfair Display', serif; font-size: 14px; color: rgba(255,255,255,.3); letter-spacing: .06em; }
-    }
-  </style>
+/* ── CARD LIST ── */
+.card-list{ border-bottom:1px solid var(--line); }
+.card-row{
+  display:flex;
+  align-items:stretch;
+  border-bottom:1px solid var(--line);
+  overflow:hidden;
+  background:rgba(255,255,255,.08);
+  transition:background .25s;
+}
+.card-row:last-child{ border-bottom:none; }
+.card-row:hover{ background:rgba(255,255,255,.48); }
+.card-row-media{
+  width:110px; flex-shrink:0;
+  position:relative; overflow:hidden; background:var(--ink);
+}
+.card-row-media::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.18),transparent);
+}
+.card-row-media video{
+  width:100%; height:100%; object-fit:cover;
+  transition:transform .55s ease;
+}
+.card-row:hover .card-row-media video{ transform:scale(1.08); }
+.card-row-body{
+  flex:1; padding:18px 20px;
+  display:flex; flex-direction:column; justify-content:center;
+}
+.card-row-type{
+  font-family:'DM Mono',monospace;
+  font-size:9px; letter-spacing:.18em; text-transform:uppercase;
+  color:rgba(14,14,14,.38); margin-bottom:5px;
+}
+.card-row-title{
+  font-size:15px; font-weight:600; line-height:1.35; margin-bottom:4px;
+}
+.card-row-sub{
+  font-size:11px; color:rgba(14,14,14,.5); line-height:1.7;
+}
+.card-row-meta{
+  padding:0 18px;
+  display:flex; align-items:center; gap:12px; flex-shrink:0;
+}
+.card-row-heart{ font-size:11px; color:rgba(14,14,14,.35); }
+.card-row-btn{
+  font-family:'DM Mono',monospace;
+  font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+  background:var(--moss); color:var(--bone); border:none;
+  padding:9px 16px; border-radius:999px;
+  transition:background .25s, transform .25s;
+}
+.card-row-btn:hover{ background:var(--ink); transform:translateY(-1px); }
+
+/* ── REVIEWS ── */
+.more-section{
+  padding:30px 0 32px 22px;
+  border-bottom:1px solid var(--line);
+}
+.more-label{ font-size:17px; font-weight:600; margin-bottom:16px; padding-right:22px; }
+.more-rail{
+  display:flex; gap:1px;
+  overflow-x:auto; padding-right:22px;
+  background:var(--line); scrollbar-width:none;
+}
+.more-rail::-webkit-scrollbar{ display:none; }
+.more-card{
+  flex-shrink:0; width:260px;
+  background:var(--cream);
+  transition:transform .25s, background .25s;
+}
+.more-card:hover{ background:#fff; transform:translateY(-2px); }
+.more-card-media{
+  position:relative; width:100%; height:170px;
+  overflow:hidden; background:var(--ink);
+}
+.more-card-media::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.18),transparent);
+}
+.more-card-media video{
+  width:100%; height:100%; object-fit:cover;
+  transition:transform .6s ease;
+}
+.more-card:hover .more-card-media video{ transform:scale(1.08); }
+.more-card-body{ padding:16px; }
+.more-card-desc{
+  font-size:12px; color:rgba(14,14,14,.58);
+  line-height:1.75; margin-bottom:12px;
+}
+.more-card-footer{
+  display:flex; justify-content:space-between; align-items:center;
+}
+.more-card-name{ font-size:12px; font-weight:500; }
+.more-card-likes{ font-family:'DM Mono',monospace; font-size:10px; color:rgba(14,14,14,.34); }
+
+/* ── PORTFOLIO ── */
+.portfolio-section{
+  background:var(--bone);
+  border-bottom:1px solid var(--line);
+}
+.portfolio-nav{
+  display:flex; gap:0;
+  border-bottom:1px solid var(--line);
+  padding:0 22px; overflow-x:auto; scrollbar-width:none;
+}
+.portfolio-nav::-webkit-scrollbar{ display:none; }
+.portfolio-nav span{
+  font-family:'DM Mono',monospace;
+  font-size:10px; letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(14,14,14,.36);
+  padding:15px 20px 15px 0;
+  white-space:nowrap;
+  border-right:1px solid var(--line);
+  padding-right:20px; margin-right:20px;
+  transition:color .25s;
+}
+.portfolio-nav span.active,
+.portfolio-nav span:hover{ color:var(--ink); }
+.portfolio-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px; background:var(--line);
+}
+.port-thumb{
+  position:relative; aspect-ratio:3/4;
+  overflow:hidden; background:#c9c3ba;
+}
+.port-thumb::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.18),transparent 65%);
+}
+.port-thumb video{
+  width:100%; height:100%; object-fit:cover;
+  filter:grayscale(18%);
+  transition:filter .45s, transform .6s;
+}
+.port-thumb:hover video{
+  filter:grayscale(0%); transform:scale(1.08);
+}
+.portfolio-hero-text{
+  padding:26px 22px;
+  border-bottom:1px solid var(--line);
+  display:grid;
+  grid-template-columns:40px 1fr auto;
+  align-items:center; gap:16px;
+}
+.port-star{ font-size:28px; color:var(--moss); }
+.port-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(38px,8vw,68px);
+  letter-spacing:.04em; line-height:1;
+}
+.port-contact{
+  font-family:'DM Mono',monospace;
+  font-size:10px; letter-spacing:.15em; text-transform:uppercase;
+  color:rgba(14,14,14,.46); text-decoration:none;
+  border-bottom:1px solid var(--line); padding-bottom:2px;
+}
+
+/* ── FULL VIDEO ── */
+.full-photo{
+  position:relative; width:100%;
+  min-height:90svh;
+  overflow:hidden; background:var(--ink);
+  border-bottom:1px solid var(--line);
+}
+.full-photo video{
+  width:100%; height:100%; object-fit:cover;
+}
+.full-photo::after{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.46),rgba(0,0,0,.06) 45%,rgba(0,0,0,.18));
+}
+.full-photo-caption{
+  position:absolute;
+  left:22px; right:22px; bottom:18px; z-index:2;
+  display:flex; justify-content:space-between;
+  align-items:flex-end; gap:16px;
+}
+.cap-left,.cap-right{
+  font-family:'DM Mono',monospace;
+  font-size:9px; letter-spacing:.16em;
+  color:rgba(245,241,232,.55); text-transform:uppercase;
+}
+
+/* ── CTA ── */
+.cta-section{
+  position:relative;
+  background:
+    radial-gradient(circle at top,rgba(255,255,255,.08),transparent 40%),
+    linear-gradient(145deg,#173025 0%,#1e3b2d 45%,#102019 100%);
+  padding:70px 22px 64px;
+  text-align:center; overflow:hidden;
+}
+.cta-section::before{
+  content:"";
+  position:absolute;
+  width:520px; height:520px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(201,161,87,.16),transparent 62%);
+  top:-180px; left:50%;
+  transform:translateX(-50%);
+  pointer-events:none;
+}
+.cta-label{
+  position:relative;
+  font-family:'DM Mono',monospace;
+  font-size:10px; letter-spacing:.24em; text-transform:uppercase;
+  color:rgba(245,241,232,.48); margin-bottom:20px;
+}
+.cta-title{
+  position:relative;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(60px,14vw,124px);
+  line-height:.86; letter-spacing:.03em;
+  color:var(--bone); margin-bottom:12px;
+}
+.cta-title em{ color:var(--gold); font-style:normal; }
+.cta-sub{
+  position:relative;
+  font-size:12px; color:rgba(245,241,232,.48);
+  letter-spacing:.1em; text-transform:uppercase; margin-bottom:34px;
+}
+.cta-btn{
+  position:relative;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-family:'DM Mono',monospace;
+  font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  background:var(--gold); color:var(--ink);
+  text-decoration:none; border:none;
+  padding:16px 42px; border-radius:999px;
+  transition:transform .25s, background .25s, box-shadow .25s;
+  box-shadow:0 10px 30px rgba(0,0,0,.16);
+}
+.cta-btn:hover{ background:var(--bone); transform:translateY(-2px); }
+.cta-note{
+  position:relative; margin-top:16px;
+  font-family:'DM Mono',monospace;
+  font-size:9px; letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(245,241,232,.28);
+}
+
+/* ── FOOTER ── */
+footer{ background:var(--ink); padding:30px 22px 0; }
+.foot-links{
+  display:flex; gap:0;
+  border-bottom:1px solid rgba(245,241,232,.08);
+  margin-bottom:24px; flex-wrap:wrap;
+}
+.foot-links a{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(20px,4vw,30px);
+  letter-spacing:.06em;
+  color:rgba(245,241,232,.24);
+  text-decoration:none;
+  padding:16px 24px 16px 0;
+  transition:color .25s;
+}
+.foot-links a:hover{ color:var(--bone); }
+.foot-info{
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:16px; padding-bottom:20px;
+  border-bottom:1px solid rgba(245,241,232,.08);
+}
+.foot-tagline{
+  font-family:'DM Mono',monospace;
+  font-size:9px; letter-spacing:.14em; text-transform:uppercase;
+  color:rgba(245,241,232,.24); line-height:1.9;
+}
+.foot-copy{
+  font-family:'DM Mono',monospace;
+  font-size:9px; letter-spacing:.1em;
+  color:rgba(245,241,232,.16); line-height:1.9; text-align:right;
+}
+.foot-big{ padding:10px 0 0; overflow:hidden; }
+.foot-big span{
+  display:block;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(90px,24vw,220px);
+  line-height:.82; letter-spacing:.03em;
+  color:rgba(245,241,232,.05);
+}
+
+
+@keyframes tickRun{
+  0%{ transform:translateX(0); }
+  100%{ transform:translateX(-50%); }
+}
+.t-item{
+  font-family:'DM Mono',monospace;
+  font-size:9px; letter-spacing:.16em; text-transform:uppercase;
+  color:rgba(245,241,232,.24);
+  padding:0 20px; white-space:nowrap;
+  border-right:1px solid rgba(245,241,232,.07);
+}
+.t-item.hi{ color:var(--gold); }
+
+/* ── REVEAL ── */
+.reveal{
+  opacity:0; transform:translateY(24px);
+  transition:opacity .75s ease, transform .75s ease;
+}
+.reveal.from-left{ transform:translateX(-30px); }
+.reveal.from-right{ transform:translateX(30px); }
+.reveal.visible{ opacity:1; transform:none; }
+.d1{ transition-delay:.1s; }
+.d2{ transition-delay:.2s; }
+.d3{ transition-delay:.32s; }
+
+/* ── MOBILE ── */
+@media(max-width:980px){
+  .hero-main,.section-head{ grid-template-columns:1fr; }
+  .hero-desc{ justify-self:start; max-width:520px; }
+  .hero-links{ justify-content:flex-start; }
+  .portfolio-grid{ grid-template-columns:repeat(2,1fr); }
+  .photo-grid{ grid-template-columns:1fr; }
+  .hero-float-card{ top:78px; right:16px; width:150px; padding:12px; }
+  .full-photo{ min-height:70svh; }
+}
+@media(max-width:720px){
+  body{ cursor:auto; }
+  a,button{ cursor:pointer; }
+  .cursor{ display:none; }
+  nav{
+    height:auto; min-height:58px;
+    padding:12px 16px;
+    align-items:flex-start; gap:10px;
+    flex-direction:column;
+  }
+  .nav-r{ width:100%; justify-content:space-between; flex-wrap:wrap; }
+  .hero{ min-height:100svh; }
+  .hero-inner{ padding:24px 16px 72px; }
+  .hero-title{ font-size:clamp(54px,18vw,88px); }
+  .hero-float-card{
+    position:absolute; top:auto; bottom:98px; right:16px;
+    width:144px; border-radius:16px;
+  }
+  .scroll-cue{ left:16px; bottom:42px; }
+  .hero-meta{ grid-template-columns:1fr; padding:14px 16px; }
+  .section-head{ padding:40px 16px 20px; }
+  .services-banner{ padding:44px 16px 24px; }
+  .services-big {
+    font-size:clamp(32px,10vw,48px);
+    line-height:1.1;
+    letter-spacing:0.01em;
+    margin-bottom:18px;
+    text-align:center;
+    font-weight:700;
+  }
+  .card-row{ flex-direction:column; }
+  .card-row-media{ width:100%; height:180px !important; }
+  .card-row-meta{ padding:0 20px 18px; justify-content:space-between; }
+  .more-section{ padding-left:16px; }
+  .more-label{ padding-right:16px; }
+  .more-rail{ padding-right:16px; }
+  .portfolio-nav{ padding:0 16px; }
+  .portfolio-hero-text{ padding:22px 16px; grid-template-columns:28px 1fr; }
+  .port-contact{ grid-column:1/-1; margin-top:8px; }
+  .full-photo-caption{ left:16px; right:16px; flex-direction:column; align-items:flex-start; gap:6px; }
+  .cta-section{ padding:58px 16px 56px; }
+  footer{ padding:28px 16px 0; }
+  .foot-info{ grid-template-columns:1fr; }
+  .foot-copy{ text-align:left; }
+}
+@media(prefers-reduced-motion:reduce){
+  *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
+}
+/* --- LIFETIME & SUBSCRIPTION SECTION (AWARD STYLE) --- */
+.lifetime-section {
+  position:relative;
+  min-height:60vh;
+  overflow:hidden;
+  background:var(--bone);
+  border-bottom:1px solid var(--line);
+}
+.lifetime-video {
+  position:absolute;
+  top:0; left:0; width:100%; height:100%;
+  z-index:0;
+}
+.lifetime-video video {
+  width:100%; height:100%; object-fit:cover;
+  opacity:0.55;
+}
+.lifetime-overlay {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  background:rgba(255,255,255,0.7);
+  z-index:1;
+}
+.lifetime-inner {
+  position:relative; z-index:2;
+  padding:60px 22px 40px;
+  display:flex; flex-wrap:wrap; align-items:center; gap:40px;
+}
+.lifetime-info {
+  flex:1 1 320px;
+  min-width:280px;
+}
+.lifetime-title {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(32px,6vw,54px);
+  margin-bottom:18px;
+  color:var(--ink);
+}
+.lifetime-desc {
+  font-size:15px; color:var(--ink); line-height:1.8; margin-bottom:8px;
+}
+.lifetime-list {
+  font-size:13px; color:var(--ink); margin-bottom:10px;
+  padding-left:18px;
+}
+.lifetime-label {
+  display:inline-block; background:var(--gold); color:var(--bone); font-size:11px; border-radius:8px; padding:2px 10px; margin-right:8px;
+}
+.lifetime-price {
+  font-size:22px; font-weight:bold; color:var(--moss); margin-bottom:8px;
+}
+.lifetime-note {
+  font-size:12px; color:var(--soft);
+}
+@media (max-width: 720px) {
+  .lifetime-inner {
+    flex-direction: column;
+    padding: 40px 0 24px 0;
+    gap: 24px;
+  }
+  .lifetime-info {
+    min-width: 0;
+    width: 100vw;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  .lifetime-info video {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+}
+</style>
 </head>
 <body>
 
-  <!-- Header -->
-  <header>
-    <span>sleep harmony</span>
-    <nav class="nav-links">
-      <a href="#">About</a>
-      <a href="#">Ingredients</a>
-      <a href="#">Reviews</a>
-      <a href="#">Shop</a>
-      <a href="#">Contact</a>
-    </nav>
-  </header>
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="loader-kicker">Natural Sleep Research Studio</div>
+  <div class="loader-title">Sleep Harmony</div>
+  <div class="loader-bar"></div>
+</div>
 
-  <!-- HERO -->
-  <div class="hero">
-    <div class="video-wrap hero-vid">
-      <video autoplay muted loop playsinline>
-        <source src="sleep (1).mp4" type="video/mp4">
+<div class="cursor" id="cursor"></div>
+<div class="top-progress" id="topProgress"></div>
+
+<!-- NAV -->
+<nav>
+
+  <div class="nav-r">
+    <a href="#ingredients">成分</a>
+    <a href="#effects">効果</a>
+    <a href="#reviews">レビュー</a>
+    <button class="nav-buy">注文 ¥3,980</button>
+  </div>
+</nav>
+
+<!-- ① HERO -->
+<section class="hero snap">
+  <video autoplay muted loop playsinline class="parallax-media" data-speed="0.18">
+    <source src="video (6)_4.mp4" type="video/mp4">
+  </video>
+  <!-- HEROスライダー用スクリプト読込 -->
+  <script src="hero-slider.js"></script>
+  <div class="hero-overlay"></di>
+  <div class="hero-grain"></div>
+
+  <div class="hero-float-card reveal d2">
+    <small>Night Capsule / 30 Days</small>
+    <strong>自然由来成分で、眠りのリズムをやさしく整える。</strong>
+  </div>
+
+  <div class="hero-inner">
+    <div class="hero-topline reveal">SH-001 / 2026 / JAPAN</div>
+    <div class="hero-main">
+      <div>
+        <div class="hero-title reveal">人生の1/3、ちゃんと投資してる？<br><em></em></div>
+      </div>
+      <div class="hero-desc reveal d1">
+        <p>夜の緊張をほどき、入眠から深睡眠、そして朝の目覚めまで。Sleep Harmony は、明日の自分を整えるためのナイトルーティンです。</p>
+        <div class="hero-links">
+          <a href="#effects" class="hero-link">効果を見る</a>
+          <a href="#cta" class="hero-link">今すぐ注文</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>Scroll</span><span class="line"></span></div>
+</section>
+
+<div class="hero-meta">
+  <div class="hero-meta-title">Sleep Harmony — ナイトカプセル </div>
+
+</div>
+
+<!-- ② INGREDIENTS -->
+<section class="snap" id="ingredients">
+  <div class="section-head">
+    <div>
+      <div class="section-kicker reveal">Ingredients</div>
+      <h2 class="section-title reveal d1">眠りをつくる、<br>静かなサプリ</h2>
+    </div>
+    <p class="section-copy reveal d2">Sleep Harmony
+自然由来成分で眠りを整えるナイトサプリ。
+
+✔ 入眠サポート
+✔ 深い睡眠をサポート
+✔ 朝スッキリ目覚める
+
+忙しい現代人のための、
+新しい睡眠習慣。</p>
+  </div>
+  <div class="photo-grid">
+    <div class="photo-cell reveal">
+      <div class="photo-cell-media">
+        <video autoplay muted loop playsinline>
+          <source src="video (11)_3.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="photo-cell-info">
+        <div class="photo-cell-cat">Ingredient 01</div>
+        <div class="photo-cell-title">メラトニン</div>
+        <p class="photo-cell-desc">体内時計のリズムに寄り添い、自然な入眠の流れをサポート。</p>
+      </div>
+    </div>
+    <div class="photo-cell reveal d1">
+      <div class="photo-cell-media">
+        <video autoplay muted loop playsinline>
+          <source src="video (6)_6.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="photo-cell-info">
+        <div class="photo-cell-cat">Ingredient 02</div>
+        <div class="photo-cell-title">L-テアニン</div>
+        <p class="photo-cell-desc">緑茶由来のアミノ酸。忙しい脳を静かにほどき、休息モードへ。</p>
+      </div>
+    </div>
+    <div class="photo-cell reveal d2">
+      <div class="photo-cell-media">
+        <video autoplay muted loop playsinline>
+          <source src="video (16).mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="photo-cell-info">
+        <div class="photo-cell-cat">Ingredient 03</div>
+        <div class="photo-cell-title">アシュワガンダ</div>
+        <p class="photo-cell-desc">夜のストレスと緊張感にアプローチし、深い眠りの質を支える。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ③-2 DESIGN AWARD LIFETIME & SUBSCRIPTION SECTION -->
+<section class="lifetime-section snap" id="lifetime">
+  <div class="lifetime-video">
+    <video autoplay muted loop playsinline>
+      <source src="lifetime-sub.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="lifetime-overlay"></div>
+  <div class="lifetime-inner">
+    <div class="lifetime-info">
+      <div class="lifetime-title" style="font-family:'Bebas Neue',sans-serif;font-size:clamp(38px,7vw,68px);color:var(--gold);letter-spacing:.04em;line-height:1;"><br>LIFETIME / SUBSCRIPTION</div>
+      <div class="lifetime-desc" style="margin-top:18px;">
+        <span class="lifetime-label">買い切り（Lifetime）</span>
+        <span class="lifetime-price">3980円</span>
+        <span class="lifetime-note">（セール時は1480円になることもあります）</span>
+      </div>
+      <ul class="lifetime-list">
+        <li>一度の購入で永久利用可能</li>
+        <li>セール時は大幅割引あり</li>
+      </ul>
+      <div class="lifetime-desc" style="margin-top:18px;">
+        <span class="lifetime-label">月額/年額</span>
+        <span class="lifetime-note">ストアによって異なりますが、1980円サブスクリプション形式での提供が一般的です。</span>
+      </div>
+      <ul class="lifetime-list">
+        <li>お試し期間あり</li>
+        <li>いつでも解約可能</li>
+      </ul>
+      <div class="lifetime-note" style="margin-top:10px;">※詳細は各ストア・販売ページをご確認ください。</div>
+    </div>
+    <div class="lifetime-info" style="display:flex;justify-content:center;align-items:center;">
+      <video autoplay muted loop playsinline style="width:100%;max-width:340px;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.18);border:4px solid var(--gold);">
+        <source src="video (28).mp4" type="video/mp4">
       </video>
     </div>
-    <div class="hero-overlay">
-      <h1 class="anim anim-fadeup d1">The Night That<br>Restores You</h1>
-      <p  class="anim anim-blurup d3">朝の目覚めが変わるサプリ。</p>
+  </div>
+</section>
+
+<!-- ③ EFFECTS BANNER -->
+<section class="services-banner snap" id="effects">
+
+<!-- スライダー用スクリプト読込 -->
+<script src="slider.js"></script>
+  <div class="services-big reveal">こんな時ないですか？</div>
+  <p class="services-sub reveal d1">寝付けない、寝床にはいってもスマホばっかり見てしまう。
+  そんな時SleepHarmonyはあなたの夜を快適にするようにデザインします。
+  </p>
+</section>
+
+<!-- ④ CARD LIST -->
+<section class="card-list snap">
+  <div class="card-row reveal">
+    <div class="card-row-media" style="height:92px;">
+      <video autoplay muted loop playsinline><source src="video (6)_5.mp4" type="video/mp4"></video>
+    </div>
+    <div class="card-row-body">
+      <div class="card-row-type">Effect 01</div>
+      <div class="card-row-title">入眠までの時間を短く</div>
+      <div class="card-row-sub">考えすぎる夜をなだらかに整え、布団に入ったあとの時間をやさしく変える。</div>
+    </div>
+    <div class="card-row-meta"><span class="card-row-heart">♡ 84</span><button class="card-row-btn">詳しく</button></div>
+  </div>
+  <div class="card-row reveal d1">
+    <div class="card-row-media" style="height:92px;">
+      <video autoplay muted loop playsinline><source src="video (13).mp4" type="video/mp4"></video>
+    </div>
+    <div class="card-row-body">
+      <div class="card-row-type">Effect 02</div>
+      <div class="card-row-title">深睡眠をしっかり支える</div>
+      <div class="card-row-sub">眠るだけでなく、休める睡眠へ。心身の回復感が翌朝の差になる。</div>
+    </div>
+    <div class="card-row-meta"><span class="card-row-heart">♡ 61</span><button class="card-row-btn">詳しく</button></div>
+  </div>
+  <div class="card-row reveal d2">
+    <div class="card-row-media" style="height:92px;">
+      <video autoplay muted loop playsinline><source src="video (16).mp4" type="video/mp4"></video>
+    </div>
+    <div class="card-row-body">
+      <div class="card-row-type">Effect 03</div>
+      <div class="card-row-title">朝の目覚めを軽くする</div>
+      <div class="card-row-sub">眠気を引きずらない。重さの少ない朝で、1日のスタートを整える。</div>
+    </div>
+    <div class="card-row-meta"><span class="card-row-heart">♡ 109</span><button class="card-row-btn">詳しく</button></div>
+  </div>
+  <div class="card-row reveal">
+    <div class="card-row-media" style="height:92px;">
+      <video autoplay muted loop playsinline><source src="video (20).mp4" type="video/mp4"></video>
+    </div>
+    <div class="card-row-body">
+      <div class="card-row-type">Effect 04</div>
+      <div class="card-row-title">夜のストレスをゆるめる</div>
+      <div class="card-row-sub">仕事終わりの張りつめた気分をやさしくほどき、眠りやすい心へ。</div>
+    </div>
+    <div class="card-row-meta"><span class="card-row-heart">♡ 77</span><button class="card-row-btn">詳しく</button></div>
+  </div>
+  <div class="card-row reveal d1">
+    <div class="card-row-media" style="height:92px;">
+      <video autoplay muted loop playsinline><source src="video (11)_2.mp4" type="video/mp4"></video>
+    </div>
+    <div class="card-row-body">
+      <div class="card-row-type">Effect 05</div>
+      <div class="card-row-title">生活リズムをリセット</div>
+      <div class="card-row-sub">不規則な睡眠サイクルや時差ボケの調整にも寄り添う設計。</div>
+    </div>
+    <div class="card-row-meta"><span class="card-row-heart">♡ 53</span><button class="card-row-btn">詳しく</button></div>
+  </div>
+</section>
+
+<!-- ⑤ REVIEWS -->
+<section class="more-section snap" id="reviews">
+  <div class="more-label">使った人の声</div>
+  <div class="more-rail">
+    <div class="more-card">
+      <div class="more-card-media"><video autoplay muted loop playsinline><source src="video (11)_6.mp4" type="video/mp4"></video></div>
+      <div class="more-card-body">
+        <p class="more-card-desc">「飲み始めてから、夜の不安が減って、朝が少し楽しみになりました。」</p>
+        <div class="more-card-footer"><span class="more-card-name">Yuki M. · 32歳</span><span class="more-card-likes">♡ 84</span></div>
+      </div>
+    </div>
+    <div class="more-card">
+      <div class="more-card-media"><video autoplay muted loop playsinline><source src="video (11)_7.mp4" type="video/mp4"></video></div>
+      <div class="more-card-body">
+        <p class="more-card-desc">「眠れない夜に追い詰められなくなった。お守りみたいな存在です。」</p>
+        <div class="more-card-footer"><span class="more-card-name">Haruna K. · 28歳</span><span class="more-card-likes">♡ 61</span></div>
+      </div>
+    </div>
+    <div class="more-card">
+      <div class="more-card-media"><video autoplay muted loop playsinline><source src="video (30).mp4" type="video/mp4"></video></div>
+      <div class="more-card-body">
+        <p class="more-card-desc">「翌朝の頭の重さが変わりました。眠る質ってこういうことかと実感。」</p>
+        <div class="more-card-footer"><span class="more-card-name">Kenji T. · 36歳</span><span class="more-card-likes">♡ 77</span></div>
+      </div>
+    </div>
+    <div class="more-card">
+      <div class="more-card-media"><video autoplay muted loop playsinline><source src="video (20).mp4" type="video/mp4"></video></div>
+      <div class="more-card-body">
+        <p class="more-card-desc">「出張や生活リズムの乱れが続くときに、整える習慣として使っています。」</p>
+        <div class="more-card-footer"><span class="more-card-name">Sota A. · 29歳</span><span class="more-card-likes">♡ 53</span></div>
+      </div>
     </div>
   </div>
+</section>
 
-  <!-- THUMB GRID -->
-  <div class="thumb-section">
-    <div class="thumb-grid">
-      <div class="thumb anim anim-scale d1">
-        <div class="video-wrap thumb-vid">
-          <video autoplay muted loop playsinline><source src="sleep (2).mp4" type="video/mp4"></video>
-        </div>
-      </div>
-      <div class="thumb anim anim-scale d2">
-        <div class="video-wrap thumb-vid">
-          <video autoplay muted loop playsinline><source src="sleep (3).mp4" type="video/mp4"></video>
-        </div>
-      </div>
-      <div class="thumb anim anim-scale d3">
-        <div class="video-wrap thumb-vid">
-          <video autoplay muted loop playsinline><source src="sleep (4).mp4" type="video/mp4"></video>
-        </div>
-      </div>
-    </div>
+<!-- ⑥ PORTFOLIO -->
+<section class="portfolio-section snap">
+  <div class="portfolio-nav">
+    <span class="active">全成分</span>
+    <span>メラトニン</span><span>テアニン</span><span>アシュワガンダ</span><span>マグネシウム</span>
   </div>
-
-  <!-- COPY -->
-  <div class="copy-section">
-    <div>
-      <h2 class="anim anim-right">あなたの夜を、静かな<br>癒しに。</h2>
-      <span class="deco-line anim"></span>
-    </div>
-    <div class="copy-thumbs">
-      <div class="copy-thumb anim anim-fadeup d3">
-        <div class="video-wrap">
-          <video autoplay muted loop playsinline><source src="sleep (5).mp4" type="video/mp4"></video>
-        </div>
-      </div>
-      <div class="copy-thumb anim anim-fadeup d4">
-        <div class="video-wrap">
-          <video autoplay muted loop playsinline><source src="sleep (6).mp4" type="video/mp4"></video>
-        </div>
-      </div>
-    </div>
+  <div class="portfolio-grid">
+    <div class="port-thumb"><video autoplay muted loop playsinline><source src="video (11)_4.mp4" type="video/mp4"></video></div>
+    <div class="port-thumb"><video autoplay muted loop playsinline><source src="video (6)_3.mp4" type="video/mp4"></video></div>
+    <div class="port-thumb"><video autoplay muted loop playsinline><source src="video (15).mp4" type="video/mp4"></video></div>
+    <div class="port-thumb"><video autoplay muted loop playsinline><source src="video (11)_5.mp4" type="video/mp4"></video></div>
   </div>
-
-  <!-- FEATURE -->
-  <div class="feature-section">
-    <div class="feature-main">
-      <div class="feature-left">
-        <div class="video-wrap feature-vid" style="position:absolute;inset:0;height:100%">
-          <video autoplay muted loop playsinline><source src="sleep (7).mp4" type="video/mp4"></video>
-        </div>
-        <div class="feature-overlay">
-          <p>
-            <span class="line anim anim-fadeup d1">眠れない夜に、やさしく答える。</span>
-            <span class="line anim anim-fadeup d2">ただ眠るだけじゃない。整う眠りへ。</span>
-            <span class="line anim anim-fadeup d3">今日の疲れを、明日に残さない。</span>
-          </p>
-          <div class="author anim anim-fadein d5">
-            <div class="avatar">🐨</div>
-            <div>
-              <div class="author-name">Sora</div>
-              <div class="author-handle">@konishilyomai</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="feature-right">
-        <div class="feature-right-top">
-          <div class="video-wrap" style="position:absolute;inset:0">
-            <video autoplay muted loop playsinline><source src="sleep (3).mp4" type="video/mp4"></video>
-          </div>
-        </div>
-        <div class="feature-right-bottom">
-          <span class="anim anim-fadein d2">やさしくはぐくむ。</span>
-        </div>
-      </div>
-    </div>
+  <div class="portfolio-hero-text">
+    <div class="port-star">✦</div>
+    <div class="port-name">Sleep Harmony</div>
+    <a href="#cta" class="port-contact">注文する →</a>
   </div>
+</section>
 
-  <!-- BIG TEXT -->
-  <div class="big-text">
-    <h1 class="anim anim-clip">The Night That<br>Restores You</h1>
-    <p  class="anim anim-blurup d4">朝の目覚めが変わるサプリ。</p>
+<!-- ⑦ FULL VIDEO -->
+<section class="full-photo snap">
+  <video autoplay muted loop playsinline class="parallax-media" data-speed="0.12">
+    <source src="video (20).mp4" type="video/mp4">
+  </video>
+  <div class="full-photo-caption">
+    <span class="cap-left">Sleep Harmony / Natural Sleep / Night Ritual</span>
+    <span class="cap-right">30 Capsules / 30 Days / Made in Japan</span>
   </div>
+</section>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-tagline anim anim-fadein d1">"Better Sleep, Better Life."</div>
-  
-    </div>
-    <div class="footer-bottom-row">
-      <div class="footer-contact anim anim-fadeup d3">contact</div>
-      <div class="footer-logo    anim anim-fadeup d4">sleep harmony</div>
-    </div>
-  </footer>
+<!-- ⑧ CTA -->
+<section class="cta-section snap" id="cta">
+  <div class="cta-label reveal">今夜から始める / 送料無料 / 30日間返金保証</div>
+  <div class="cta-title reveal d1">深く眠る。<br><em>明日が変わる。</em></div>
+  <p class="cta-sub reveal d2">Night Capsule · 30Days · ¥3,980</p>
+  <a href="#" class="cta-btn reveal d2">今すぐ注文する</a>
+  <p class="cta-note reveal d3">定期購入はいつでもキャンセル可能</p>
+</section>
 
-  <!-- ════════════════════════════
-       Intersection Observer
-       スクロールで .visible 付与
-  ════════════════════════════ -->
-  <script>
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          io.unobserve(e.target); // 一度だけ発火
-        }
-      });
-    }, { threshold: 0.15 });
+<!-- FOOTER -->
+<footer>
+  <div class="foot-links">
+    <a href="#">製品</a><a href="#">成分研究</a><a href="#">ブランド</a><a href="#">お問い合わせ</a>
+  </div>
+  <div class="foot-info">
+    <div class="foot-tagline">SLEEP HARMONY<br>A NATURAL SLEEP RESEARCH STUDIO<br>EST. 2026 / JAPAN</div>
+    <div class="foot-copy">© 2026 Sleep Harmony<br>本製品は医薬品ではありません<br>プライバシーポリシー<br>特定商取引法</div>
+  </div>
+  <div class="foot-big"><span>Sleep Harmony</span></div>
+</footer>
 
-    // ページ内の全 .anim 要素を監視
-    document.querySelectorAll('.anim').forEach(el => io.observe(el));
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="t-item hi">Sleep Harmony</span>
+    <span class="t-item">メラトニン</span><span class="t-item">L-テアニン</span>
+    <span class="t-item">アシュワガンダ</span><span class="t-item">マグネシウム</span>
+    <span class="t-item hi">¥3,980 / 30日分</span>
+    <span class="t-item">GMP認定工場</span><span class="t-item">習慣性なし</span>
+    <span class="t-item">グルテンフリー</span><span class="t-item">30日間返金保証</span>
+    <span class="t-item hi">Sleep Harmony</span>
+    <span class="t-item">メラトニン</span><span class="t-item">L-テアニン</span>
+    <span class="t-item">アシュワガンダ</span><span class="t-item">マグネシウム</span>
+    <span class="t-item hi">¥3,980 / 30日分</span>
+    <span class="t-item">GMP認定工場</span><span class="t-item">習慣性なし</span>
+    <span class="t-item">グルテンフリー</span><span class="t-item">30日間返金保証</span>
+  </div>
+</div>
 
-    // ヒーローオーバーレイはページ読み込み直後に発火
-    window.addEventListener('load', () => {
-      document.querySelectorAll('.hero-overlay .anim').forEach(el => {
-        setTimeout(() => el.classList.add('visible'),
-          (parseFloat(getComputedStyle(el).animationDelay) || 0) * 1000 + 200);
-      });
+<script>
+/* LOADER */
+window.addEventListener('load', () => {
+  const loader = document.getElementById('loader');
+  setTimeout(() => loader.classList.add('hide'), 1100);
+});
+
+// --- レビュー横スライダー：指・マウスでスライド対応 ---
+{
+  const rail = document.querySelector('.more-rail');
+  if (rail) {
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    // マウス
+    rail.addEventListener('mousedown', (e) => {
+      isDown = true;
+      rail.classList.add('dragging');
+      startX = e.pageX - rail.offsetLeft;
+      scrollLeft = rail.scrollLeft;
     });
-  </script>
+    rail.addEventListener('mouseleave', () => {
+      isDown = false;
+      rail.classList.remove('dragging');
+    });
+    rail.addEventListener('mouseup', () => {
+      isDown = false;
+      rail.classList.remove('dragging');
+    });
+    rail.addEventListener('mousemove', (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - rail.offsetLeft;
+      const walk = (x - startX) * 1.2; // スクロール速度調整
+      rail.scrollLeft = scrollLeft - walk;
+    });
 
+    // タッチ
+    rail.addEventListener('touchstart', (e) => {
+      isDown = true;
+      startX = e.touches[0].pageX - rail.offsetLeft;
+      scrollLeft = rail.scrollLeft;
+    });
+    rail.addEventListener('touchend', () => {
+      isDown = false;
+    });
+    rail.addEventListener('touchmove', (e) => {
+      if (!isDown) return;
+      const x = e.touches[0].pageX - rail.offsetLeft;
+      const walk = (x - startX) * 1.2;
+      rail.scrollLeft = scrollLeft - walk;
+    });
+  }
+}
+
+/* CURSOR */
+const cursor = document.getElementById('cursor');
+window.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+document.querySelectorAll('a,button,.photo-cell,.more-card,.card-row,.port-thumb,.portfolio-nav span').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+});
+
+/* REVEAL */
+const revealIO = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.14 });
+document.querySelectorAll('.reveal').forEach(el => revealIO.observe(el));
+
+/* PORTFOLIO NAV */
+document.querySelectorAll('.portfolio-nav span').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.portfolio-nav span').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+
+/* PARALLAX */
+const parallaxEls = document.querySelectorAll('.parallax-media');
+
+function updateParallax() {
+  parallaxEls.forEach(el => {
+    const speed  = parseFloat(el.dataset.speed || 0.12);
+    const parent = el.parentElement;
+    const rect   = parent.getBoundingClientRect();
+    const center = rect.top + rect.height / 2 - window.innerHeight / 2;
+    el.style.transform = `translateY(${center * speed}px) scale(1.12)`;
+  });
+}
+
+/* PROGRESS BAR */
+const snapSections = [...document.querySelectorAll('.snap')];
+const topProgress  = document.getElementById('topProgress');
+
+const snapIO = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(!e.isIntersecting) return;
+    const idx = snapSections.indexOf(e.target);
+    topProgress.style.width = ((idx + 1) / snapSections.length * 100) + '%';
+  });
+}, { threshold: 0.55 });
+
+snapSections.forEach(s => snapIO.observe(s));
+
+window.addEventListener('scroll', updateParallax, { passive: true });
+window.addEventListener('resize', updateParallax);
+updateParallax();
+</script>
 </body>
 </html>
